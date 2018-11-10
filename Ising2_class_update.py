@@ -54,18 +54,30 @@ class Ising:
         Mag=1.0/(self.size**2)*Mag
         
         return Mag
-
+''' def Mag_sqr(self,s_warm):
+        Mag=0
+        for i in range (self.size):
+            for j in range(self.size):
+                Mag+=(s_warm[i][j])
+        Mag=1.0/(self.size**2)*Mag
+        
+        return Mag
+        
     def Energy(self,s_warm):
         E_eq=0
         for i in range(size):
             for j in range(size):
                 E_eq+=s_warm[i][j]*self.Neighbours(s_warm,i,j)
-        E_eq=E_eq/2
+        E_eq=E_eq/2'''
+
+
 N=50
 T=1.0
 Mag_avg=np.zeros(N)
+Mag_avg_sqr=np.zeros(N)
 Temp=np.zeros(N)
-
+susceptibility=np.zeros(N)
+iterations=300
 for j in range(N):
     latt=Ising(10,100,0,T)
 
@@ -80,14 +92,23 @@ for j in range(N):
     #ax=f1.add_subplot(132)
     #im=plt.imshow(s_warm,vmin="-1",vmax="1",cmap="plasma")
 
-    for i in range(200): #Calculates magnetization for a series of warmed up lattices and then averages them
+    for i in range(iterations): #Calculates magnetization for a series of warmed up lattices and then averages them
         Mag_avg[j]+=latt.Mag(s_warm)
+        Mag_avg_sqr[j]+=(latt.Mag(s_warm))**2
         s_warm=latt.Flip(s_warm)
-    Mag_avg[j] = abs(Mag_avg[j])/100 
+        
+    
+    Mag_avg[j] = abs(Mag_avg[j])/iterations
+    Mag_avg_sqr[j]=Mag_avg_sqr[j]/iterations
     Temp[j]=T
+    susceptibility[j]=(1.0/T)*(Mag_avg_sqr[j]-Mag_avg[j]**2)
     T+=.05
+    
+f3=plt.figure()
+ax3=f3.add_subplot(111)
+ax3.plot(Temp,Mag_avg,'ro')
 
-f=plt.figure()
-ax=f.add_subplot(111)
-ax.plot(Temp,Mag_avg,'ro')
+f4=plt.figure()
+ax4=f4.add_subplot(111)
+ax4.plot(Temp,susceptibility,'b*')
 plt.show()
